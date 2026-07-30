@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -24,6 +24,15 @@ function run(command, args, expectedStatus = 0, cwd = testRoot) {
     );
   }
   return result;
+}
+
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 try {
@@ -63,6 +72,51 @@ try {
     throw new Error("Generated HTML contains unresolved placeholders");
   }
 
+  const framesCache = join(project, ".frames-cache");
+  const npmCache = join(project, ".npm-cache");
+  const proof = join(project, "output", "proof");
+  const finalVideo = join(project, "output", "final.mp4");
+  const oldVideo = join(project, "output", "old.mp4");
+  await mkdir(framesCache);
+  await mkdir(npmCache);
+  await mkdir(proof);
+  await writeFile(join(framesCache, "frame.bin"), "cache");
+  await writeFile(join(npmCache, "cache.bin"), "cache");
+  await writeFile(join(proof, "frame.png"), "proof");
+  await copyFile(source, finalVideo);
+  await writeFile(oldVideo, "old-render");
+
+  run("node", [join(project, "scripts", "cleanup.mjs")], 0, project);
+  if (!(await exists(framesCache)) || !(await exists(proof))) {
+    throw new Error("Cleanup dry-run removed files");
+  }
+  run("node", [
+    join(project, "scripts", "cleanup.mjs"),
+    "--prune-output",
+  ], 1, project);
+  run("node", [
+    join(project, "scripts", "cleanup.mjs"),
+    "--prune-output",
+    "--keep", "../source.mp4",
+  ], 1, project);
+  run("node", [join(project, "scripts", "cleanup.mjs"), "--apply"], 0, project);
+  if (await exists(framesCache) || await exists(npmCache) || await exists(proof)) {
+    throw new Error("Cleanup did not remove regenerable targets");
+  }
+  if (!(await exists(finalVideo)) || !(await exists(oldVideo))) {
+    throw new Error("Default cleanup removed an output video");
+  }
+
+  run("node", [
+    join(project, "scripts", "cleanup.mjs"),
+    "--prune-output",
+    "--keep", "output/final.mp4",
+    "--apply",
+  ], 0, project);
+  if (!(await exists(finalVideo)) || await exists(oldVideo)) {
+    throw new Error("Output pruning did not preserve exactly the requested final");
+  }
+
   const secondScaffold = run("node", [
     join(skillRoot, "scripts", "scaffold.mjs"),
     "--video", source,
@@ -72,7 +126,7 @@ try {
     throw new Error("Scaffold overwrite guard did not report the expected error");
   }
 
-  process.stdout.write("Self-test passed: scaffold, privacy guard, draft gate, build, and overwrite guard.\n");
+  process.stdout.write("Self-test passed: scaffold, privacy guard, draft gate, build, cleanup, output keep-list, and overwrite guard.\n");
 } finally {
   await rm(testRoot, { recursive: true, force: true });
 }

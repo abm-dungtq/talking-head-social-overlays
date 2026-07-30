@@ -8,6 +8,7 @@
 4. Preview approval
 5. GPU render
 6. Final verification
+7. Post-delivery cleanup
 
 ## Check gate
 
@@ -113,3 +114,21 @@ Compute SHA-256 for:
 - the final MP4.
 
 The original and staged hashes must match.
+
+## Post-delivery cleanup
+
+Preserve:
+
+- the canonical final MP4;
+- the final verification contact sheet;
+- `data/`, `scripts/`, `assets/`, templates, manifests, and project configuration;
+- the staged source video;
+- any artifact the user explicitly names.
+
+Default cleanup may remove:
+
+- `.frames-cache/`, `.npm-cache/`, `.hf-tmp/`, `.thumbnails/`, `.waveform-cache/`, and `node_modules/`;
+- abandoned `.hf-transaction-*` directories;
+- snapshot, proof, frame, and font-review directories.
+
+Run `npm run cleanup` without `--apply`, report its JSON target list and size, and obtain approval before applying. Removing older renders requires `--prune-output` plus one or more explicit `--keep` paths. The script refuses output pruning without a keep list.

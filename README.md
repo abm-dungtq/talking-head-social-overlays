@@ -20,6 +20,7 @@ nhiều video.
 - Build có schema validation, draft gate, kiểm tra overlap và số item theo template.
 - HyperFrames CLI được ghim phiên bản và dùng npm cache riêng từng project.
 - Render cuối bằng GPU/browser GPU ở 1080×1920, 30 fps.
+- Cleanup dry-run-first cho cache, proof frame, transaction hỏng và render cũ.
 
 ## Yêu cầu
 
@@ -149,6 +150,31 @@ npm run dev
 npm run render:gpu -- --output "output/final-gpu.mp4" --browser-timeout 120
 ```
 
+7. Sau khi final đã được xác minh, xem trước danh sách dọn dẹp:
+
+```bash
+npm run cleanup
+```
+
+Lệnh trên chỉ dry-run. Mặc định nó nhắm vào cache và proof có thể tái tạo, đồng
+thời giữ toàn bộ MP4. Sau khi kiểm tra danh sách và dung lượng:
+
+```bash
+npm run cleanup -- --apply
+```
+
+Muốn loại các render cũ, phải chỉ rõ mọi artifact cuối cần giữ:
+
+```bash
+npm run cleanup -- \
+  --prune-output \
+  --keep "output/final-gpu.mp4" \
+  --keep "output/final-verification/contact-sheet-final.png"
+```
+
+Kiểm tra dry-run, sau đó mới lặp lại lệnh với `--apply`. Script từ chối
+`--prune-output` nếu không có `--keep`.
+
 `npm run build:draft` chỉ dùng để xem placeholder vừa scaffold, không phải đường
 tắt cho production.
 
@@ -159,7 +185,8 @@ node skill/scripts/self-test.mjs
 ```
 
 Self-test tạo video tạm, kiểm tra scaffold, hash, quyền riêng tư, draft gate,
-build và bảo vệ chống ghi đè; dữ liệu tạm được dọn sau khi hoàn tất.
+build, cleanup, output keep-list và bảo vệ chống ghi đè; dữ liệu tạm được dọn
+sau khi hoàn tất.
 
 ## Nâng cấp
 
@@ -176,6 +203,8 @@ hãy commit hoặc sao lưu trước khi copy để tránh mất thay đổi.
 - Storyboard chỉ lưu tên file nguồn và SHA-256, không lưu đường dẫn máy.
 - Scaffold từ chối thư mục không rỗng và tạo project qua thư mục tạm trước khi
   đổi tên hoàn tất.
+- Cleanup mặc định là dry-run, chỉ thao tác trong project đã xác minh và không
+  xoá render nếu chưa có `--prune-output` cùng keep-list.
 - Video nguồn không bị sửa, trim, transcode hoặc di chuyển.
 
 ## Giấy phép

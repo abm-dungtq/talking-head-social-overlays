@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:draft": "node scripts/build.mjs --allow-draft",
+    "cleanup": "node scripts/cleanup.mjs",
     "dev": "npx --yes --cache .npm-cache hyperframes@0.7.83 preview",
     "check": "npx --yes --cache .npm-cache hyperframes@0.7.83 check",
     "snapshot": "npx --yes --cache .npm-cache hyperframes@0.7.83 snapshot",

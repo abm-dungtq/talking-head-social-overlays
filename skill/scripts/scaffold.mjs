@@ -143,6 +143,7 @@ async function main() {
     await copyFile(join(starter, "hyperframes.json"), join(temporary, "hyperframes.json"));
     await copyFile(join(starter, ".gitignore"), join(temporary, ".gitignore"));
     await copyFile(join(skillRoot, "scripts", "build.mjs"), join(temporary, "scripts", "build.mjs"));
+    await copyFile(join(skillRoot, "scripts", "cleanup.mjs"), join(temporary, "scripts", "cleanup.mjs"));
     await cp(join(skillRoot, "assets", "fonts"), join(temporary, "assets", "fonts"), {
       recursive: true,
       force: false,

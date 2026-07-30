@@ -137,11 +137,43 @@ After render:
 4. Extract representative frames from the final MP4, not only from Studio snapshots.
 5. Recompute the source SHA-256 and confirm it is unchanged.
 
+### 9. Clean the project after delivery
+
+Do not clean until the final MP4 passes verification and the user confirms which render is canonical.
+
+Run a dry-run first:
+
+```bash
+npm run cleanup
+```
+
+The default scope targets only regenerable caches, abandoned HyperFrames transactions, snapshots, and proof-frame directories. It preserves all MP4 renders, the final verification folder, source video, storyboard, templates, and scripts.
+
+Report the target list and recoverable size. Apply only after reviewing it:
+
+```bash
+npm run cleanup -- --apply
+```
+
+When the user explicitly wants to remove older renders and keep only the delivered artifacts, name every retained file:
+
+```bash
+npm run cleanup -- \
+  --prune-output \
+  --keep "output/<final-video>.mp4" \
+  --keep "output/<final-verification>/contact-sheet-final.png"
+```
+
+Review that dry-run, then repeat with `--apply`. Never use `--prune-output` without an explicit keep list. Use `--deep` only when the project-local `.venv` may also be recreated.
+
+For a project created before this skill added its marker, run the external cleanup script with `--allow-legacy`; confirm the reported project identity is `legacy` before applying.
+
 ## Assets and scripts
 
 - `scripts/scaffold.ps1`: create a safe reusable project.
 - `scripts/scaffold.mjs`: canonical cross-platform scaffolder.
 - `scripts/build.mjs`: compile storyboard scenes and keyframes into `index.html`.
+- `scripts/cleanup.mjs`: dry-run-first cache and output cleanup with an explicit keep list.
 - `scripts/self-test.mjs`: verify scaffold safety, privacy, and build gates.
 - `assets/starter/index.template.html`: approved top-down visual system.
 - `assets/fonts/`: Be Vietnam Pro 600/700/800/900.
@@ -157,6 +189,7 @@ Report:
 - scene count and timed reveal count;
 - final verification contact sheet;
 - source and output SHA-256;
+- cleanup targets, reclaimed size, and retained artifacts;
 - any caveat that remains.
 
-Never delete the project or older renders unless the user explicitly asks.
+Never delete the project or older renders unless the user explicitly asks and approves the cleanup dry-run.

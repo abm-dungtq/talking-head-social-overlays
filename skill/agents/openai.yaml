@@ -1,0 +1,7 @@
+interface:
+  display_name: "Talking Head Social Overlays"
+  short_description: "Biên tập talking-head với visual top-down"
+  default_prompt: "Use $talking-head-social-overlays to package this talking-head video with sequential Vietnamese key text, diagrams, social-safe layout, preview, and GPU rendering."
+
+policy:
+  allow_implicit_invocation: true

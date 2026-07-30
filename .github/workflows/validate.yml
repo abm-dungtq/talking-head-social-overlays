@@ -1,0 +1,23 @@
+name: Validate skill
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Verify JavaScript syntax
+        run: |
+          node --check skill/scripts/scaffold.mjs
+          node --check skill/scripts/build.mjs
+          node --check skill/scripts/self-test.mjs
+      - name: Run portable self-test
+        run: node skill/scripts/self-test.mjs

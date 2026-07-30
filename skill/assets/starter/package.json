@@ -1,0 +1,13 @@
+{
+  "name": "talking-head-social-project",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:draft": "node scripts/build.mjs --allow-draft",
+    "dev": "npx --yes --cache .npm-cache hyperframes@0.7.83 preview",
+    "check": "npx --yes --cache .npm-cache hyperframes@0.7.83 check",
+    "snapshot": "npx --yes --cache .npm-cache hyperframes@0.7.83 snapshot",
+    "render:gpu": "npx --yes --cache .npm-cache hyperframes@0.7.83 render . --gpu --browser-gpu --quality high --fps 30"
+  }
+}

@@ -1,0 +1,6 @@
+assets/video/*.mp4
+output/
+snapshots/
+.hf-tmp/
+.npm-cache/
+node_modules/
